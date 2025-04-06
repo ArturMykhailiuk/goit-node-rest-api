@@ -4,7 +4,7 @@ export const listContacts = () => Contact.findAll();
 
 export const getContactById = (id) => Contact.findByPk(id);
 
-// export const getMovieById = id => Movie.findOne({
+// export const getContactById = id => Contact.findOne({
 //     where: {
 //         id,
 //     }
@@ -13,7 +13,7 @@ export const getContactById = (id) => Contact.findByPk(id);
 export const addContact = (data) => Contact.create(data);
 
 export const updateContact = async (id, data) => {
-  const contact = await getMovieById(id);
+  const contact = await getContactById(id);
   if (!contact) return null;
 
   return contact.update(data, {
