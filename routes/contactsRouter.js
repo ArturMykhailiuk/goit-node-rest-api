@@ -6,6 +6,7 @@ import validateBody from "../helpers/validateBody.js";
 import {
   createContactSchema,
   updateContactSchema,
+  updateFavoriteSchema,
 } from "../schemas/contactsSchemas.js";
 
 import isEmptyBody from "../middlewares/isEmptyBody.js";
@@ -30,6 +31,13 @@ contactsRouter.put(
   isEmptyBody,
   validateBody(updateContactSchema),
   contactsControllers.updateContact
+);
+
+contactsRouter.patch(
+  "/:id/favorite",
+  isEmptyBody,
+  validateBody(updateFavoriteSchema),
+  contactsControllers.updateStatusContact
 );
 
 export default contactsRouter;
