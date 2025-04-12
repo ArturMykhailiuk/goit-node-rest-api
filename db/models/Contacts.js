@@ -21,6 +21,6 @@ const Contact = sequelize.define("Contact", {
   },
 });
 
-//Contact.sync(); for creating table in database
+//Contact.sync({ force: true });
 
 export default Contact;

@@ -1,14 +1,14 @@
 import Contact from "../db/models/Contacts.js";
 
-export const listContacts = () => Contact.findAll();
+export const listContacts = async ({ limit, offset, filter }) => {
+  return await Contact.findAndCountAll({
+    where: filter,
+    limit,
+    offset,
+  });
+};
 
 export const getContactById = (id) => Contact.findByPk(id);
-
-// export const getContactById = id => Contact.findOne({
-//     where: {
-//         id,
-//     }
-// });
 
 export const addContact = (data) => Contact.create(data);
 
@@ -37,6 +37,5 @@ export const updateStatusContact = async (id, body) => {
   if (updatedRowsCount === 0) {
     return null;
   }
-
   return updatedContact;
 };

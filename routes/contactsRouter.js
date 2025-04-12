@@ -1,7 +1,9 @@
 import express from "express";
 import contactsControllers from "../controllers/contactsControllers.js";
+import authenticate from "../middlewares/authenticate.js";
 
 import validateBody from "../helpers/validateBody.js";
+import validatePagination from "../helpers/validatePagination.js";
 
 import {
   createContactSchema,
@@ -13,7 +15,9 @@ import isEmptyBody from "../middlewares/isEmptyBody.js";
 
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", contactsControllers.getAllContacts);
+contactsRouter.use(authenticate);
+
+contactsRouter.get("/", validatePagination, contactsControllers.getAllContacts);
 
 contactsRouter.get("/:id", contactsControllers.getOneContact);
 

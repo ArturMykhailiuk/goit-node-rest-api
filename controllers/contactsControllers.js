@@ -4,8 +4,25 @@ import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 
 const getAllContacts = async (req, res) => {
-  const data = await contactsService.listContacts();
-  res.json(data);
+  const { page = 1, limit = 20, favorite } = req.query;
+  const offset = (page - 1) * limit;
+
+  const filter = {};
+  if (favorite !== undefined) {
+    filter.favorite = favorite === "true";
+  }
+  const data = await contactsService.listContacts({
+    limit: +limit,
+    offset: +offset,
+    filter,
+  });
+
+  res.json({
+    page: +page,
+    limit: +limit,
+    total: data.count,
+    contacts: data.rows,
+  });
 };
 
 const getOneContact = async (req, res) => {
@@ -21,7 +38,6 @@ const getOneContact = async (req, res) => {
 
 const deleteContact = async (req, res) => {
   const { id } = req.params;
-
   const contact = await contactsService.getContactById(id);
 
   if (!contact) {
@@ -33,10 +49,6 @@ const deleteContact = async (req, res) => {
   res.status(200).json(contact);
 };
 
-// res.json({
-//   message: "Delete successfully",
-// });
-
 const createContact = async (req, res) => {
   const data = await contactsService.addContact(req.body);
 
@@ -45,6 +57,7 @@ const createContact = async (req, res) => {
 
 const updateContact = async (req, res) => {
   const { id } = req.params;
+
   const data = await contactsService.updateContact(id, req.body);
 
   if (!data) {
@@ -58,7 +71,6 @@ const updateStatusContact = async (req, res) => {
   const { id } = req.params;
   const { favorite } = req.body;
 
-  // Оновлення контакту в базі
   const updatedContact = await contactsService.updateStatusContact(id, {
     favorite,
   });
