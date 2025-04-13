@@ -108,7 +108,7 @@ Response:
 }
 ```
 
-## Contact API Endpoints
+## User API Endpoints
 
 ### Base URL
 
