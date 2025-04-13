@@ -131,7 +131,7 @@ http://localhost:3000/api/auth
 }
 ```
 
-Response:  
+   Response:  
 
 ```bash
 {
@@ -155,7 +155,7 @@ Response:
 }
 ```
 
-Response:  
+   Response:  
 
 ```bash
 {
@@ -179,7 +179,7 @@ Response:
 }
 ```
 
-Response:
+   Response:
 
 ```bash
 {
@@ -201,7 +201,7 @@ Response:
 }
 ```
 
-Request Body:
+   Request Body:
 
 ```bash
 {
@@ -209,7 +209,7 @@ Request Body:
 }
 ```
 
-Response:
+   Response:
 
 ```bash
 {
