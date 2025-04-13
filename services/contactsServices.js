@@ -1,19 +1,25 @@
 import Contact from "../db/models/Contacts.js";
 
-export const listContacts = async ({ limit, offset, filter }) => {
-  return await Contact.findAndCountAll({
-    where: filter,
-    limit,
-    offset,
+export const listContacts = (query) => {
+  console.log("query", query);
+  return Contact.findAndCountAll({
+    where: query.filter,
+    limit: query.limit,
+    offset: query.offset,
   });
 };
 
 export const getContactById = (id) => Contact.findByPk(id);
 
+export const getContact = (query) =>
+  Contact.findOne({
+    where: query,
+  });
+
 export const addContact = (data) => Contact.create(data);
 
-export const updateContact = async (id, data) => {
-  const contact = await getContactById(id);
+export const updateContact = async (query, data) => {
+  const contact = await getContact(query);
   if (!contact) return null;
 
   return contact.update(data, {
@@ -21,16 +27,15 @@ export const updateContact = async (id, data) => {
   });
 };
 
-export const removeContact = (id) =>
+export const removeContact = (query) =>
+  console.log("query", query) ||
   Contact.destroy({
-    where: {
-      id,
-    },
+    where: query,
   });
 
-export const updateStatusContact = async (id, body) => {
+export const updateStatusContact = async (query, body) => {
   const [updatedRowsCount, [updatedContact]] = await Contact.update(body, {
-    where: { id },
+    where: query,
     returning: true,
   });
 

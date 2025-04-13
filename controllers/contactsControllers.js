@@ -11,6 +11,8 @@ const getAllContacts = async (req, res) => {
   if (favorite !== undefined) {
     filter.favorite = favorite === "true";
   }
+  const { id: owner } = req.user;
+  filter.owner = owner;
   const data = await contactsService.listContacts({
     limit: +limit,
     offset: +offset,
@@ -27,7 +29,8 @@ const getAllContacts = async (req, res) => {
 
 const getOneContact = async (req, res) => {
   const { id } = req.params;
-  const data = await contactsService.getContactById(id);
+  const { id: owner } = req.user;
+  const data = await contactsService.getContact({ id, owner });
 
   if (!data) {
     throw HttpError(404, `Contact with id=${id} not found`);
@@ -38,27 +41,29 @@ const getOneContact = async (req, res) => {
 
 const deleteContact = async (req, res) => {
   const { id } = req.params;
-  const contact = await contactsService.getContactById(id);
+  const { id: owner } = req.user;
+  const contact = await contactsService.getContact({ id, owner });
 
   if (!contact) {
     throw HttpError(404, `Contact with id=${id} not found`);
   }
 
-  await contactsService.removeContact(id);
+  await contactsService.removeContact({ id });
 
   res.status(200).json(contact);
 };
 
 const createContact = async (req, res) => {
-  const data = await contactsService.addContact(req.body);
+  const { id: owner } = req.user;
+  const data = await contactsService.addContact({ ...req.body, owner });
 
   res.status(201).json(data);
 };
 
 const updateContact = async (req, res) => {
   const { id } = req.params;
-
-  const data = await contactsService.updateContact(id, req.body);
+  const { id: owner } = req.user;
+  const data = await contactsService.updateContact({ id, owner }, req.body);
 
   if (!data) {
     throw HttpError(404, `Contact with id=${id} not found`);
@@ -69,11 +74,13 @@ const updateContact = async (req, res) => {
 
 const updateStatusContact = async (req, res) => {
   const { id } = req.params;
+  const { id: owner } = req.user;
   const { favorite } = req.body;
 
-  const updatedContact = await contactsService.updateStatusContact(id, {
-    favorite,
-  });
+  const updatedContact = await contactsService.updateStatusContact(
+    { id, owner },
+    { favorite }
+  );
 
   if (!updatedContact) {
     throw HttpError(404, "Contact not found");
