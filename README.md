@@ -10,7 +10,7 @@ This is a REST API project built with Node.js and Express. The API provides func
 - **Error Handling**: Centralized error handling for consistent responses.
 - **Modular Structure**: Organized codebase with controllers, routes, and services.
 
-## API Endpoints
+## Contact API Endpoints
 
 ### Base URL
 
@@ -105,5 +105,120 @@ Response:
 ```bash
 {
  "message": "Delete successfully"
+}
+```
+
+## Contact API Endpoints
+
+### Base URL
+
+http://localhost:3000/api/auth
+
+### Endpoints
+
+1. User Registration  
+   URL: /register
+   Method: POST  
+   Description: Registering of new User.
+   Request Body:
+
+```bash
+{
+  "username": "JohnDoe",
+  "email": "john@example.com",
+  "password": "password123",
+  "subscription": "starter"
+}
+```
+
+Response:
+
+```bash
+{
+  "id": "1",
+  "username": "JohnDoe",
+  "email": "john@example.com",
+  "subscription": "starter"
+}
+```
+
+2. User Login  
+   URL: /login
+   Method: POST
+   Description: User Login
+   Request Body:
+
+```bash
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+Response:
+
+```bash
+{
+  "token": "some-valid-token",
+  "user": {
+    "email": "john@example.com",
+    "subscription": "starter"
+   }
+}
+```
+
+3. Get Current User
+   URL: /current
+   Method: GET
+   Description: Get Current Authorized User
+   Headers:
+
+```bash
+{
+  "Authorization": "Bearer <valid-token>"
+}
+```
+
+Response:
+
+```bash
+{
+  "username": "JohnDoe",
+  "email": "john@example.com",
+  "subscription": "starter"
+}
+```
+
+4. Update User Subscription
+   URL: /subscription
+   Method: PATCH
+   Description: Update user subscription
+   Headers:
+
+```bash
+{
+  "Authorization": "Bearer <valid-token>"
+}
+```
+
+Request Body:
+
+```bash
+{
+  "subscription": "pro"
+}
+```
+
+Response:
+
+```bash
+{
+  "message": "Subscription updated successfully",
+  "user": {
+    "id": "1",
+    "username": "JohnDoe",
+    "email": "john@example.com",
+    "subscription": "pro"
+  }
 }
 ```
