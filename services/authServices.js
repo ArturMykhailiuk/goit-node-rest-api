@@ -1,18 +1,24 @@
 import bcrypt from "bcrypt";
+import gravatar from "gravatar";
+import fs from "fs/promises";
+import path from "node:path";
 
 import User from "../db/models/Users.js";
-
 import HttpError from "../helpers/HttpError.js";
-
 import { generateToken } from "../helpers/jwt.js";
 
-export const findUser = (query) =>
-  User.findOne({
+const findUser = async (query) => {
+  return User.findOne({
     where: query,
   });
+};
 
-export const signupUser = async (data) => {
-  const { email, password } = data;
+const signupUser = async (data) => {
+  const { email, password } = data.body;
+
+  const avatarURL =
+    data.file?.filename || gravatar.url(email, { s: "125", d: "retro" }, true);
+
   const user = await User.findOne({
     where: {
       email,
@@ -25,10 +31,10 @@ export const signupUser = async (data) => {
 
   const hashPassword = await bcrypt.hash(password, 10);
 
-  return User.create({ ...data, password: hashPassword });
+  return User.create({ ...data.body, password: hashPassword, avatarURL });
 };
 
-export const signinUser = async (data) => {
+const signinUser = async (data) => {
   const { email, password } = data;
   const user = await User.findOne({
     where: {
@@ -59,7 +65,7 @@ export const signinUser = async (data) => {
   };
 };
 
-export const logoutUser = async (id) => {
+const logoutUser = async (id) => {
   const user = await findUser({ id });
   if (!user || !user.token) {
     throw HttpError(404, "User not found");
@@ -68,7 +74,7 @@ export const logoutUser = async (id) => {
   await user.update({ token: null });
 };
 
-export const updateSubscription = async (id, { subscription }) => {
+const updateSubscription = async (id, { subscription }) => {
   const [updatedRowsCount, [updatedUser]] = await User.update(
     { subscription },
     {
@@ -77,9 +83,56 @@ export const updateSubscription = async (id, { subscription }) => {
     }
   );
 
+  if (!updatedUser) {
+    throw HttpError(404, "User not found");
+  }
+
   if (updatedRowsCount === 0) {
     return null;
   }
 
   return updatedUser;
+};
+
+const updateAvatar = async (id, file) => {
+  const avatarsDir = path.join("public", "avatars");
+  const uniqueName = `id${id}_${Date.now()}_${file.originalname}`;
+  const resultPath = path.join(avatarsDir, uniqueName);
+  const tempPath = file.path;
+
+  try {
+    await fs.rename(tempPath, resultPath);
+
+    const avatarURL = path.join(path.resolve(), resultPath);
+
+    const [updatedRowsCount, [updatedUser]] = await User.update(
+      { avatarURL },
+      {
+        where: { id },
+        returning: true,
+      }
+    );
+
+    if (!updatedUser) {
+      throw HttpError(401, "Not authorized");
+    }
+
+    if (updatedRowsCount === 0) {
+      return null;
+    }
+
+    return updatedUser.avatarURL;
+  } catch (error) {
+    await fs.unlink(tempPath);
+    throw error;
+  }
+};
+
+export default {
+  findUser,
+  signupUser,
+  signinUser,
+  logoutUser,
+  updateSubscription,
+  updateAvatar,
 };

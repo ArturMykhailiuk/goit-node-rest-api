@@ -7,7 +7,7 @@ import { emailRegexp } from "../../constants/auth.js";
 const User = sequelize.define("User", {
   username: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
   },
   password: {
     type: DataTypes.STRING,
@@ -27,6 +27,10 @@ const User = sequelize.define("User", {
     defaultValue: "starter",
   },
   token: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  },
+  avatarURL: {
     type: DataTypes.STRING,
     defaultValue: null,
   },

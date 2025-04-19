@@ -108,7 +108,7 @@ Response:
 }
 ```
 
-## Contact API Endpoints
+## User API Endpoints
 
 ### Base URL
 
@@ -116,11 +116,11 @@ http://localhost:3000/api/auth
 
 ### Endpoints
 
-1. User Registration  
-   URL: /register
-   Method: POST  
-   Description: Registering of new User.
-   Request Body:
+1. User Registration      
+   URL: /register  
+   Method: POST    
+   Description: Registering of new User  
+   Request Body:  
 
 ```bash
 {
@@ -131,7 +131,7 @@ http://localhost:3000/api/auth
 }
 ```
 
-Response:
+   Response:  
 
 ```bash
 {
@@ -142,11 +142,11 @@ Response:
 }
 ```
 
-2. User Login  
-   URL: /login
-   Method: POST
-   Description: User Login
-   Request Body:
+2. User Login    
+   URL: /login  
+   Method: POST  
+   Description: User Login  
+   Request Body:  
 
 ```bash
 {
@@ -155,7 +155,7 @@ Response:
 }
 ```
 
-Response:
+   Response:  
 
 ```bash
 {
@@ -167,11 +167,11 @@ Response:
 }
 ```
 
-3. Get Current User
-   URL: /current
-   Method: GET
-   Description: Get Current Authorized User
-   Headers:
+3. Get Current User  
+   URL: /current  
+   Method: GET  
+   Description: Get Current Authorized User  
+   Headers:  
 
 ```bash
 {
@@ -179,7 +179,7 @@ Response:
 }
 ```
 
-Response:
+   Response:
 
 ```bash
 {
@@ -189,11 +189,11 @@ Response:
 }
 ```
 
-4. Update User Subscription
-   URL: /subscription
-   Method: PATCH
-   Description: Update user subscription
-   Headers:
+4. Update User Subscription  
+   URL: /subscription  
+   Method: PATCH  
+   Description: Update user subscription  
+   Headers:  
 
 ```bash
 {
@@ -201,7 +201,7 @@ Response:
 }
 ```
 
-Request Body:
+   Request Body:
 
 ```bash
 {
@@ -209,7 +209,7 @@ Request Body:
 }
 ```
 
-Response:
+   Response:
 
 ```bash
 {
