@@ -1,9 +1,8 @@
-import * as authServices from "../services/authServices.js";
-
+import authServices from "../services/authServices.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 
 const signupController = async (req, res) => {
-  const newUser = await authServices.signupUser(req.body);
+  const newUser = await authServices.signupUser(req);
 
   res.status(201).json({
     user: {
@@ -37,23 +36,16 @@ const getCurrentController = (req, res) => {
 const logoutController = async (req, res) => {
   const { id } = req.user;
   await authServices.logoutUser(id);
-
-  res.status(204).json({
-    message: "No Content",
-  });
+  res.status(204).send();
 };
 
-const updateSubscription = async (req, res) => {
+const updateSubscriptionController = async (req, res) => {
   const { id } = req.user;
   const { subscription } = req.body;
 
   const updatedUser = await authServices.updateSubscription(id, {
     subscription,
   });
-
-  if (!updatedUser) {
-    throw HttpError(404, "User not found");
-  }
 
   res.status(200).json({
     message: "Subscription updated successfully",
@@ -65,10 +57,25 @@ const updateSubscription = async (req, res) => {
   });
 };
 
+const updateAvatarController = async (req, res) => {
+  const { id } = req.user;
+
+  if (!req.file) {
+    throw HttpError(400, "File not uploaded");
+  }
+
+  const avatarURL = await authServices.updateAvatar(id, req.file);
+
+  res.status(200).json({
+    avatarURL,
+  });
+};
+
 export default {
   signupController: ctrlWrapper(signupController),
   signinController: ctrlWrapper(signinController),
   getCurrentController: ctrlWrapper(getCurrentController),
   logoutController: ctrlWrapper(logoutController),
-  updateSubscription: ctrlWrapper(updateSubscription),
+  updateSubscriptionController: ctrlWrapper(updateSubscriptionController),
+  updateAvatarController: ctrlWrapper(updateAvatarController),
 };

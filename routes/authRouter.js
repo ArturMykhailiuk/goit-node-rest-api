@@ -1,28 +1,24 @@
 import express from "express";
 
-import authenticate from "../middlewares/authenticate.js";
-
 import authControllers from "../controllers/authControllers.js";
-
+import * as authSchemas from "../schemas/authSchemas.js";
 import validateBody from "../helpers/validateBody.js";
-
-import {
-  authSignupSchema,
-  authSigninSchema,
-  updateSubscriptionSchema,
-} from "../schemas/authSchemas.js";
+import upload from "../middlewares/upload.js";
+import authenticate from "../middlewares/authenticate.js";
 
 const authRouter = express.Router();
 
 authRouter.post(
   "/register",
-  validateBody(authSignupSchema),
+  upload.single("avatarURL"),
+  validateBody(authSchemas.signupSchema),
   authControllers.signupController
 );
 
 authRouter.post(
   "/login",
-  validateBody(authSigninSchema),
+  upload.single("email"),
+  validateBody(authSchemas.signinSchema),
   authControllers.signinController
 );
 
@@ -33,8 +29,16 @@ authRouter.post("/logout", authenticate, authControllers.logoutController);
 authRouter.patch(
   "/subscription",
   authenticate,
-  validateBody(updateSubscriptionSchema),
-  authControllers.updateSubscription
+  validateBody(authSchemas.updateSubscriptionSchema),
+  authControllers.updateSubscriptionController
+);
+
+authRouter.patch(
+  "/avatars",
+  authenticate,
+  validateBody(authSchemas.updateAvatarSchema),
+  upload.single("avatarURL"),
+  authControllers.updateAvatarController
 );
 
 export default authRouter;
