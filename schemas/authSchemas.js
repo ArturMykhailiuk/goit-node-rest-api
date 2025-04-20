@@ -22,8 +22,4 @@ const updateSubscriptionSchema = Joi.object({
     .required(),
 });
 
-// export const updateAvatarSchema = Joi.object({
-//   avatarURL: Joi.string().uri(),
-// });
-
 export default { signupSchema, signinSchema, updateSubscriptionSchema };
