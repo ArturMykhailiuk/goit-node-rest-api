@@ -1,8 +1,9 @@
 import express from "express";
 
 import authControllers from "../controllers/authControllers.js";
-import * as authSchemas from "../schemas/authSchemas.js";
-import validateBody from "../helpers/validateBody.js";
+import authSchemas from "../schemas/authSchemas.js";
+import validateBody from "../middlewares/validateBody.js";
+import validateAvatar from "../middlewares/validateAvatar.js";
 import upload from "../middlewares/upload.js";
 import authenticate from "../middlewares/authenticate.js";
 
@@ -36,8 +37,8 @@ authRouter.patch(
 authRouter.patch(
   "/avatars",
   authenticate,
-  validateBody(authSchemas.updateAvatarSchema),
   upload.single("avatarURL"),
+  validateAvatar,
   authControllers.updateAvatarController
 );
 

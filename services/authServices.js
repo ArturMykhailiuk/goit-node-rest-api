@@ -124,7 +124,7 @@ const updateAvatar = async (id, file) => {
     return updatedUser.avatarURL;
   } catch (error) {
     await fs.unlink(tempPath);
-    throw error;
+    throw "error";
   }
 };
 

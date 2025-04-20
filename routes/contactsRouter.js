@@ -1,9 +1,8 @@
 import express from "express";
 import contactsControllers from "../controllers/contactsControllers.js";
 import authenticate from "../middlewares/authenticate.js";
-
-import validateBody from "../helpers/validateBody.js";
-import validatePagination from "../helpers/validatePagination.js";
+import validateBody from "../middlewares/validateBody.js";
+import validatePagination from "../middlewares/validatePagination.js";
 
 import {
   createContactSchema,
