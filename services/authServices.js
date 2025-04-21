@@ -1,12 +1,10 @@
 import bcrypt from "bcrypt";
 import fs from "fs/promises";
 import path from "node:path";
-import { nanoid } from "nanoid";
 
 import User from "../db/models/Users.js";
 import HttpError from "../helpers/HttpError.js";
 import { generateToken } from "../helpers/jwt.js";
-import sendMail from "../helpers/sendMail.js";
 
 export const findUser = async (query) => {
   return User.findOne({
@@ -14,31 +12,12 @@ export const findUser = async (query) => {
   });
 };
 
-const registerUser = async (data, hashPassword, avatarURL) => {
-  // const { email } = data;
-
-  // const isExistingUser = await User.findOne({
-  //   where: {
-  //     email,
-  //   },
-  // });
-
-  // if (isExistingUser) {
-  //   throw HttpError(409, "Email already in use");
-  // }
-
-  // const verificationToken = nanoid();
-
-  // const verificationLink = `http://localhost:3000/api/auth/verify/${verificationToken}`;
-
-  // const emailOptions = {
-  //   to: email,
-  //   subject: "Email Verification",
-  //   text: `Please verify your email by clicking on the following link: ${verificationLink}`,
-  // };
-
-  // await sendMail(emailOptions);
-
+const registerUser = async (
+  data,
+  hashPassword,
+  avatarURL,
+  verificationToken
+) => {
   return User.create({
     ...data,
     password: hashPassword,
@@ -142,7 +121,6 @@ const updateAvatar = async (id, file) => {
 };
 
 export default {
-  // findUser,
   registerUser,
   loginUser,
   logoutUser,

@@ -13,7 +13,7 @@ const authRouter = express.Router();
 authRouter.post(
   "/register",
   upload.single("avatarURL"),
-  // validateBody(authSchemas.registerSchema),
+  validateBody(authSchemas.registerSchema),
   authControllers.registerController
 );
 
@@ -44,15 +44,15 @@ authRouter.patch(
   authControllers.updateAvatarController
 );
 
-// authRouter.get(
-// "/verify/:verificationToken?",
-// authControllers.verificationTokenConfirmationController
-// );
+authRouter.get(
+  "/verify/:verificationToken?",
+  authControllers.verificationTokenConfirmationController
+);
 
-// authRouter.post(
-// "/verify",
-// validateBody(authSchemas.validationEmailSchema),
-// authControllers.registerController
-// authControllers.verificationTokenReConfirmationController
-// );
+authRouter.post(
+  "/verify",
+  validateBody(authSchemas.validationEmailSchema),
+  authControllers.registerController
+  // wauthControllers.verificationTokenReConfirmationController
+);
 export default authRouter;

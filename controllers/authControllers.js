@@ -17,6 +17,14 @@ const registerController = async (req, res) => {
 
   const isExistingUser = await findUser({ email });
 
+  let verificationToken;
+
+  if (isExistingUser) {
+    verificationToken = isExistingUser.verificationToken;
+  } else {
+    verificationToken = nanoid();
+  }
+
   if (!isExistingUser) {
     const avatarURL =
       req.file?.filename || gravatar.url(email, { s: "125", d: "retro" }, true);
@@ -26,7 +34,8 @@ const registerController = async (req, res) => {
     const newUser = await authServices.registerUser(
       req.body,
       hashPassword,
-      avatarURL
+      avatarURL,
+      verificationToken
     );
 
     res.status(201).json({
@@ -42,7 +51,11 @@ const registerController = async (req, res) => {
   }
 
   if (isExistingUser && !isExistingUser.verify) {
-    throw HttpError(409, "requires verification.");
+    isVerifiedUser.verificationToken = null;
+    isVerifiedUser.verify = true;
+    await isVerifiedUser.save();
+
+    res.status(200).json({ message: "Verification successful" });
   }
 
   // let verificationToken = null;
@@ -50,14 +63,6 @@ const registerController = async (req, res) => {
   //   ? isExistingUser.verificationToken
   //   : nanoid();
 
-  let verificationToken;
-
-  if (isExistingUser) {
-    verificationToken = isExistingUser.verificationToken; // Використовуємо існуючий токен
-  } else {
-    verificationToken = nanoid(); // Генеруємо новий токен
-  }
-  console.log("verificationToken", verificationToken);
   const verificationLink = `${req.protocol}://${req.get(
     "host"
   )}/api/auth/verify/${verificationToken}`;
@@ -68,52 +73,8 @@ const registerController = async (req, res) => {
     text: `Please verify your email by clicking on the following link: ${verificationLink}`,
   };
 
-  try {
-    await sendMail(emailOptions);
-    res.status(200).json({ message: "Verification email sent" });
-  } catch (error) {
-    next(HttpError(500, "Failed to send verification email"));
-  }
+  await sendMail(emailOptions);
 };
-
-// export const verificationTokenReConfirmationController = async (
-//   req,
-//   res,
-//   next
-// ) => {
-// const { email } = req.body;
-
-// if (!email) {
-//   return next(HttpError(400, "missing required field email"));
-// }
-
-// const isVerifiedUser = await Users.findOne({ where: { email } });
-
-// if (!isVerifiedUser) {
-// return next(HttpError(404, "User not found"));
-// }
-
-// if (isVerifiedUser.verify) {
-// return next(HttpError(400, "Verification has already been passed"));
-// }
-
-// const verificationLink = `${req.protocol}://${req.get(
-//   "host"
-// )}/api/auth/verify/${isVerifiedUser.verificationToken}`;
-
-// const emailOptions = {
-//   to: email,
-//   subject: "Email Verification",
-//   text: `Please verify your email by clicking on the following link: ${verificationLink}`,
-// };
-
-// try {
-//   await sendMail(emailOptions);
-//   res.status(200).json({ message: "Verification email sent" });
-// } catch (error) {
-//   next(HttpError(500, "Failed to send verification email"));
-// }
-// };
 
 const loginController = async (req, res) => {
   const { token, user: newUser } = await authServices.loginUser(req.body);
@@ -185,7 +146,7 @@ export const verificationTokenConfirmationController = async (
     return next(HttpError(400, "Missing verification token parameter"));
   }
 
-  const isVerifiedUser = await Users.findOne({ where: { verificationToken } });
+  const isVerifiedUser = await findUser({ verificationToken });
 
   if (!isVerifiedUser) {
     return next(HttpError(404, "User not found"));
@@ -208,7 +169,4 @@ export default {
   verificationTokenConfirmationController: ctrlWrapper(
     verificationTokenConfirmationController
   ),
-  // verificationTokenReConfirmationController: ctrlWrapper(
-  // verificationTokenReConfirmationController
-  // ),
 };

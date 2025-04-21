@@ -1,8 +1,6 @@
 import HttpError from "../helpers/HttpError.js";
-
-import authServices from "../services/authServices.js";
-
 import { verifyToken } from "../helpers/jwt.js";
+import { findUser } from "../services/authServices.js";
 
 const authenticate = async (req, res, next) => {
   const { authorization } = req.headers;
@@ -11,19 +9,24 @@ const authenticate = async (req, res, next) => {
       HttpError(401, "Not authorized : Authorization header missing")
     );
   }
+
   const [bearer, token] = authorization.split(" ");
   if (bearer !== "Bearer") {
     return next(HttpError(401, "Not authorized : Bearer missing"));
   }
+
   const { payload, error } = verifyToken(token);
   if (error) {
     return next(HttpError(401, "Not authorized : " + error.message));
   }
-  const user = await authServices.findUser({ email: payload.email });
+
+  const user = await findUser({ email: payload.email });
   if (!user || !user.token) {
     return next(HttpError(401, "Not authorized : User not found"));
   }
+
   req.user = user;
+
   next();
 };
 
