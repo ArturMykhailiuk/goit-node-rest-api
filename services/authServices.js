@@ -7,7 +7,7 @@ import User from "../db/models/Users.js";
 import HttpError from "../helpers/HttpError.js";
 import { generateToken } from "../helpers/jwt.js";
 
-const findUser = async (query) => {
+export const findUser = async (query) => {
   return User.findOne({
     where: query,
   });
@@ -129,7 +129,6 @@ const updateAvatar = async (id, file) => {
 };
 
 export default {
-  findUser,
   signupUser,
   signinUser,
   logoutUser,
