@@ -2,7 +2,7 @@ import Joi from "joi";
 
 import { emailRegexp, subscriptionTypes } from "../constants/auth.js";
 
-const signupSchema = Joi.object({
+const registerSchema = Joi.object({
   username: Joi.string().required(),
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
@@ -10,7 +10,7 @@ const signupSchema = Joi.object({
   avatarURL: Joi.string().uri(),
 });
 
-const signinSchema = Joi.object({
+const loginSchema = Joi.object({
   username: Joi.string(),
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
@@ -22,4 +22,13 @@ const updateSubscriptionSchema = Joi.object({
     .required(),
 });
 
-export default { signupSchema, signinSchema, updateSubscriptionSchema };
+const validationEmailSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+export default {
+  registerSchema,
+  loginSchema,
+  updateSubscriptionSchema,
+  validationEmailSchema,
+};

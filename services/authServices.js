@@ -1,40 +1,53 @@
 import bcrypt from "bcrypt";
-import gravatar from "gravatar";
 import fs from "fs/promises";
 import path from "node:path";
+import { nanoid } from "nanoid";
 
 import User from "../db/models/Users.js";
 import HttpError from "../helpers/HttpError.js";
 import { generateToken } from "../helpers/jwt.js";
+import sendMail from "../helpers/sendMail.js";
 
-const findUser = async (query) => {
+export const findUser = async (query) => {
   return User.findOne({
     where: query,
   });
 };
 
-const signupUser = async (data) => {
-  const { email, password } = data.body;
+const registerUser = async (data, hashPassword, avatarURL) => {
+  // const { email } = data;
 
-  const avatarURL =
-    data.file?.filename || gravatar.url(email, { s: "125", d: "retro" }, true);
+  // const isExistingUser = await User.findOne({
+  //   where: {
+  //     email,
+  //   },
+  // });
 
-  const user = await User.findOne({
-    where: {
-      email,
-    },
+  // if (isExistingUser) {
+  //   throw HttpError(409, "Email already in use");
+  // }
+
+  // const verificationToken = nanoid();
+
+  // const verificationLink = `http://localhost:3000/api/auth/verify/${verificationToken}`;
+
+  // const emailOptions = {
+  //   to: email,
+  //   subject: "Email Verification",
+  //   text: `Please verify your email by clicking on the following link: ${verificationLink}`,
+  // };
+
+  // await sendMail(emailOptions);
+
+  return User.create({
+    ...data,
+    password: hashPassword,
+    avatarURL,
+    verificationToken,
   });
-
-  if (user) {
-    throw HttpError(409, "Email already in use");
-  }
-
-  const hashPassword = await bcrypt.hash(password, 10);
-
-  return User.create({ ...data.body, password: hashPassword, avatarURL });
 };
 
-const signinUser = async (data) => {
+const loginUser = async (data) => {
   const { email, password } = data;
   const user = await User.findOne({
     where: {
@@ -129,9 +142,9 @@ const updateAvatar = async (id, file) => {
 };
 
 export default {
-  findUser,
-  signupUser,
-  signinUser,
+  // findUser,
+  registerUser,
+  loginUser,
   logoutUser,
   updateSubscription,
   updateAvatar,
