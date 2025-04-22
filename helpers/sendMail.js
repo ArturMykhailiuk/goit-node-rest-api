@@ -14,14 +14,15 @@ const sendMail = async (emailOptions) => {
     },
   };
 
-  const transporter = nodemailer.createTransport(config);
-
-  emailOptions.from = config.auth.user;
-
-  transporter
-    .sendMail(emailOptions)
-    .then((info) => console.log("Email sent:", info))
-    .catch((err) => console.error("Error sending email:", err));
+  try {
+    const transporter = nodemailer.createTransport(config);
+    emailOptions.from = config.auth.user;
+    const info = await transporter.sendMail(emailOptions);
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw HttpError(500, "Failed to send email");
+  }
 };
 
 export default sendMail;

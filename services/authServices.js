@@ -5,11 +5,15 @@ import path from "node:path";
 import User from "../db/models/Users.js";
 import HttpError from "../helpers/HttpError.js";
 import { generateToken } from "../helpers/jwt.js";
+import sequelize from "../db/Sequelize.js";
 
 export const findUser = async (query) => {
-  return User.findOne({
-    where: query,
-  });
+  const user = await User.findOne({ where: query });
+
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+  return user;
 };
 
 const registerUser = async (
@@ -18,25 +22,31 @@ const registerUser = async (
   avatarURL,
   verificationToken
 ) => {
-  return User.create({
-    ...data,
-    password: hashPassword,
-    avatarURL,
-    verificationToken,
-  });
+  const transaction = await sequelize.transaction();
+
+  try {
+    const newUser = await User.create(
+      {
+        ...data,
+        password: hashPassword,
+        avatarURL,
+        verificationToken,
+      },
+      { transaction }
+    );
+
+    await transaction.commit();
+    return newUser;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };
 
 const loginUser = async (data) => {
   const { email, password } = data;
-  const user = await User.findOne({
-    where: {
-      email,
-    },
-  });
 
-  if (!user) {
-    throw HttpError(401, "Email or password invalid");
-  }
+  const user = await findUser({ email });
 
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {

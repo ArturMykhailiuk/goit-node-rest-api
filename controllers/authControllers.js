@@ -1,29 +1,34 @@
 import bcrypt from "bcrypt";
 import gravatar from "gravatar";
+import { nanoid } from "nanoid";
 import authServices from "../services/authServices.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
-import Users from "../db/models/Users.js";
 import HttpError from "../helpers/HttpError.js";
-import sendMail from "../helpers/sendMail.js";
 import { findUser } from "../services/authServices.js";
-import { nanoid } from "nanoid";
+import sendMail from "../helpers/sendMail.js";
+import { VerificationLetter } from "../templates/EmailTemplates.js";
+import User from "../db/models/Users.js";
+
+const checkUserVerification = (user) => {
+  if (user && user.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+};
 
 const registerController = async (req, res) => {
   const { email, password } = req.body;
+  const verificationToken = nanoid();
 
-  // if (!email) {при існуванні користувача,напевно
-  //   return next(HttpError(400, "missing required field email"));
-  // }
+  const isExistingUser = await User.findOne({ where: { email } });
 
-  const isExistingUser = await findUser({ email });
-
-  let verificationToken;
-
-  if (isExistingUser) {
-    verificationToken = isExistingUser.verificationToken;
-  } else {
-    verificationToken = nanoid();
+  if (isExistingUser && !isExistingUser.verify) {
+    res.status(200).json({
+      message:
+        "This email address is already registered but not verified! A verification letter has been sent. Please check your inbox to complete the verification process.",
+    });
   }
+
+  checkUserVerification(isExistingUser);
 
   if (!isExistingUser) {
     const avatarURL =
@@ -38,6 +43,8 @@ const registerController = async (req, res) => {
       verificationToken
     );
 
+    await sendMail(VerificationLetter(req, email, verificationToken));
+
     res.status(201).json({
       user: {
         email: newUser.email,
@@ -45,35 +52,25 @@ const registerController = async (req, res) => {
       },
     });
   }
+};
 
-  if (isExistingUser && isExistingUser.verify) {
-    throw HttpError(409, "Email already in use");
+const additionalReqForVerificationLetterController = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return next(HttpError(400, "Missing required field: email"));
   }
+
+  const isExistingUser = await findUser({ email });
+
+  checkUserVerification(isExistingUser);
 
   if (isExistingUser && !isExistingUser.verify) {
-    isVerifiedUser.verificationToken = null;
-    isVerifiedUser.verify = true;
-    await isVerifiedUser.save();
+    const verificationToken = isExistingUser.verificationToken;
 
-    res.status(200).json({ message: "Verification successful" });
+    await sendMail(VerificationLetter(req, email, verificationToken));
+
+    res.status(200).json({ message: "Verification letter sent" });
   }
-
-  // let verificationToken = null;
-  // verificationToken = isExistingUser
-  //   ? isExistingUser.verificationToken
-  //   : nanoid();
-
-  const verificationLink = `${req.protocol}://${req.get(
-    "host"
-  )}/api/auth/verify/${verificationToken}`;
-
-  const emailOptions = {
-    to: email,
-    subject: "Email Verification",
-    text: `Please verify your email by clicking on the following link: ${verificationLink}`,
-  };
-
-  await sendMail(emailOptions);
 };
 
 const loginController = async (req, res) => {
@@ -135,21 +132,26 @@ const updateAvatarController = async (req, res) => {
   });
 };
 
-export const verificationTokenConfirmationController = async (
+const getConfirmationForVerificationLetterController = async (
   req,
   res,
   next
 ) => {
   const { verificationToken } = req.params;
-
   if (!verificationToken) {
-    return next(HttpError(400, "Missing verification token parameter"));
+    return next(
+      HttpError(400, "Missing required parameter: verification token")
+    );
   }
 
   const isVerifiedUser = await findUser({ verificationToken });
 
   if (!isVerifiedUser) {
-    return next(HttpError(404, "User not found"));
+    return next(HttpError(400, "User not found"));
+  }
+
+  if (isVerifiedUser.verify) {
+    return next(HttpError(400, "Verification has already been passed"));
   }
 
   isVerifiedUser.verificationToken = null;
@@ -166,7 +168,10 @@ export default {
   logoutController: ctrlWrapper(logoutController),
   updateSubscriptionController: ctrlWrapper(updateSubscriptionController),
   updateAvatarController: ctrlWrapper(updateAvatarController),
-  verificationTokenConfirmationController: ctrlWrapper(
-    verificationTokenConfirmationController
+  getConfirmationForVerificationLetterController: ctrlWrapper(
+    getConfirmationForVerificationLetterController
+  ),
+  additionalReqForVerificationLetterController: ctrlWrapper(
+    additionalReqForVerificationLetterController
   ),
 };

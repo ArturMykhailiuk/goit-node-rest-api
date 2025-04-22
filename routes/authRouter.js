@@ -46,13 +46,13 @@ authRouter.patch(
 
 authRouter.get(
   "/verify/:verificationToken?",
-  authControllers.verificationTokenConfirmationController
+  authControllers.getConfirmationForVerificationLetterController
 );
 
 authRouter.post(
   "/verify",
   validateBody(authSchemas.validationEmailSchema),
-  authControllers.registerController
-  // wauthControllers.verificationTokenReConfirmationController
+  authControllers.additionalReqForVerificationLetterController
 );
+
 export default authRouter;

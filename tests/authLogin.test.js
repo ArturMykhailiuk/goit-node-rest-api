@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../db/models/Users.js";
 import app from "../app.js";
 import { subscriptionTypes } from "../constants/auth.js";
+import { findUser } from "../services/authServices.js";
 
 const { PORT = 3000 } = process.env;
 const port = Number(PORT);
@@ -23,7 +24,7 @@ describe("test /api/auth/login", () => {
   });
 
   const loginData = {
-    email: "user23@gmail.com",
+    email: "artur.myhajlyuk@gmail.com",
     password: "123456",
   };
 
@@ -61,12 +62,7 @@ describe("test /api/auth/login", () => {
   });
 
   test("should find the user in the database", async () => {
-    const user = await User.findOne({
-      where: {
-        email: loginData.email,
-      },
-    });
-
+    const user = await findUser(loginData.email);
     expect(user).toBeTruthy();
   });
 });
