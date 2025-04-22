@@ -120,7 +120,7 @@ const updateSubscriptionController = async (req, res) => {
 
 const updateAvatarController = async (req, res) => {
   const { id } = req.user;
-  console.log(req);
+
   if (!req.file) {
     throw HttpError(400, "File not uploaded");
   }

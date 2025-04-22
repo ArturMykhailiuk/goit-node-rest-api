@@ -62,7 +62,7 @@ describe("test /api/auth/login", () => {
   });
 
   test("should find the user in the database", async () => {
-    const user = await findUser(loginData.email);
+    const user = await findUser({ email: loginData.email });
     expect(user).toBeTruthy();
   });
 });
