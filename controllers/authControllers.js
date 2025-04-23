@@ -146,13 +146,13 @@ const getConfirmationForVerificationLetterController = async (
 
   const isVerifiedUser = await findUser({ verificationToken });
 
-  if (!isVerifiedUser) {
-    return next(HttpError(400, "User not found"));
-  }
-
-  if (isVerifiedUser.verify) {
-    return next(HttpError(400, "Verification has already been passed"));
-  }
+  // if (!isVerifiedUser) {
+  //   return next(HttpError(400, "User not found"));
+  // }
+  checkUserVerification(isVerifiedUser);
+  // if (isVerifiedUser.verify) {
+  //   return next(HttpError(400, "Verification has already been passed"));
+  // }
 
   isVerifiedUser.verificationToken = null;
   isVerifiedUser.verify = true;

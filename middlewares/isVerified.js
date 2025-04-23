@@ -1,4 +1,3 @@
-import User from "../db/models/Users.js";
 import HttpError from "../helpers/HttpError.js";
 import { findUser } from "../services/authServices.js";
 
