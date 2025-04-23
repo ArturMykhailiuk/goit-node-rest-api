@@ -95,18 +95,16 @@ const updateSubscription = async (id, { subscription }) => {
 };
 
 const updateAvatar = async (id, file) => {
-  const avatarsDir = path.join("public", "avatars");
-  const uniqueName = `id${id}_${Date.now()}_${file.originalname}`;
-  const resultPath = path.join(avatarsDir, uniqueName);
-  const tempPath = file.path;
+  const avatarsDir = path.resolve("public", "avatars");
+  const { path: tempPath, filename } = file;
+
+  const avatarPath = path.join(avatarsDir, filename);
 
   try {
-    await fs.rename(tempPath, resultPath);
-
-    const avatarURL = path.join(path.resolve(), resultPath);
+    await fs.rename(tempPath, avatarPath);
 
     const [updatedRowsCount, [updatedUser]] = await User.update(
-      { avatarURL },
+      { avatarURL: avatarPath },
       {
         where: { id },
         returning: true,

@@ -23,7 +23,7 @@ describe("test /api/auth/login", () => {
   });
 
   const loginData = {
-    email: "user23@gmail.com",
+    email: "artur.myhajlyuk@gmail.com",
     password: "123456",
   };
 
@@ -31,6 +31,7 @@ describe("test /api/auth/login", () => {
 
   beforeEach(async () => {
     response = await request(app).post("/api/auth/login").send(loginData);
+    console.log(response.body);
   });
 
   test("should return status 200", () => {
