@@ -125,7 +125,7 @@ const updateAvatarController = async (req, res) => {
     throw HttpError(400, "File not uploaded");
   }
 
-  const avatarURL = await authServices.updateAvatar(id, req.file);
+  const avatarURL = await authServices.updateAvatar(id, req);
 
   res.status(200).json({
     avatarURL,
@@ -144,15 +144,12 @@ const getConfirmationForVerificationLetterController = async (
     );
   }
 
-  const isVerifiedUser = await findUser({ verificationToken });
+  const isVerifiedUser = await User.findOne({ where: { verificationToken } });
+  if (!isVerifiedUser) {
+    return next(HttpError(404, "The link no longer active"));
+  }
 
-  // if (!isVerifiedUser) {
-  //   return next(HttpError(400, "User not found"));
-  // }
   checkUserVerification(isVerifiedUser);
-  // if (isVerifiedUser.verify) {
-  //   return next(HttpError(400, "Verification has already been passed"));
-  // }
 
   isVerifiedUser.verificationToken = null;
   isVerifiedUser.verify = true;

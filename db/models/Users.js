@@ -41,8 +41,9 @@ const User = sequelize.define("User", {
   verificationToken: {
     type: DataTypes.STRING,
     defaultValue: null,
+    required: [true, "Verify token is required"],
   },
 });
 
-//User.sync({ force: true });
+// User.sync({ force: true });
 export default User;

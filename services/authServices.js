@@ -96,17 +96,18 @@ const updateSubscription = async (id, { subscription }) => {
   return updatedUser;
 };
 
-const updateAvatar = async (id, file) => {
+const updateAvatar = async (id, data) => {
   const avatarsDir = path.resolve("public", "avatars");
-  const { path: tempPath, filename } = file;
-
+  const { path: tempPath, filename } = data.file;
+  const serverBaseUrl = `${data.protocol}://${data.get("host")}`;
   const avatarPath = path.join(avatarsDir, filename);
+  const avatarURL = path.join(serverBaseUrl, "avatars", filename);
 
   try {
     await fs.rename(tempPath, avatarPath);
 
     const [updatedRowsCount, [updatedUser]] = await User.update(
-      { avatarURL: avatarPath },
+      { avatarURL: avatarURL },
       {
         where: { id },
         returning: true,
