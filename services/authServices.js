@@ -97,11 +97,13 @@ const updateSubscription = async (id, { subscription }) => {
 };
 
 const updateAvatar = async (id, data) => {
-  const avatarsDir = path.resolve("public", "avatars");
-  const { path: tempPath, filename } = data.file;
-  const serverBaseUrl = `${data.protocol}://${data.get("host")}`;
+  const { filename } = data.file;
+  const avatarsDir = path.join("public", "avatars");
+  const tempPath = path.join("temp", filename);
   const avatarPath = path.join(avatarsDir, filename);
-  const avatarURL = path.join(serverBaseUrl, "avatars", filename);
+
+  const serverBaseUrl = `${data.protocol}://${data.get("host")}`;
+  const avatarURL = path.join(serverBaseUrl, avatarPath);
 
   try {
     await fs.rename(tempPath, avatarPath);
